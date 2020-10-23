@@ -1,10 +1,14 @@
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
 import { Link, navigate } from "gatsby"
+import axios from "axios"
 import tw from "tailwind.macro"
 
+import { AuthContext } from "../context/authContext"
 import { Form, Input, Button } from "../components/common"
 
 const Signup = () => {
+  const { authStatus, setAuthStatus } = useContext(AuthContext)
+
   const [formValues, setFormValues] = useState({
     name: "",
     email: "",
@@ -18,16 +22,34 @@ const Signup = () => {
     })
   }
 
-  const onSubmit = e => {
+  const onSubmit = async e => {
     e.preventDefault()
-    const { email, password } = formValues
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/users/signup",
+        formValues
+      )
+      console.log(res)
+
+      setAuthStatus(authStatus => ({
+        ...authStatus,
+        isAuthenticated: true,
+        isLoading: false,
+      }))
+
+      localStorage.setItem("x-auth-token", res.data.token)
+      navigate("/app/post")
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   //* Authentication PS4
-  // if (isAuthenticated) {
-  //   navigate("/app/post")
-  // }
+  if (authStatus && authStatus.isAuthenticated) {
+    navigate("/app/post")
+  }
 
+  console.log(authStatus)
   return (
     <div>
       <h1>Sign Up</h1>
