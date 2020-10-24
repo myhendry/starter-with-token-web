@@ -1,8 +1,8 @@
 import React, { useEffect, useContext } from "react"
 import { Router } from "@reach/router"
-import { ReactQueryDevtools } from "react-query-devtools"
-import axios from "axios"
+//import { ReactQueryDevtools } from "react-query-devtools"
 
+import api from "../utils/api"
 import Signin from "../pages-client/signin"
 import Signup from "../pages-client/signup"
 import Post from "../pages-client/post"
@@ -16,27 +16,60 @@ const App = () => {
 
   useEffect(() => {
     const checkLoggedIn = async () => {
-      let token = localStorage.getItem("x-auth-token")
+      let token = localStorage.getItem("@token")
       if (token === null) {
-        localStorage.setItem("x-auth-token", "")
+        localStorage.setItem("@token", "")
         token = ""
       }
-      const res = await axios.get("http://localhost:5000/api/users/me", {
+      const res = await api.get("/users/me", {
         headers: {
           authorization: token,
         },
       })
 
-      setAuthStatus(authStatus => ({
+      //TODO 1
+      // const token = localStorage.getItem("@token")
+      // console.log("TOKEN", token)
+      // if (token) {
+      //   setAuthToken(token)
+      // }
+      // const res = await api.get("http://localhost:5000/api/users/me")
+
+      console.log(res)
+
+      setAuthStatus({
         ...authStatus,
+        accessToken: res.data.token,
         isAuthenticated: true,
         isLoading: false,
-        user: res.data,
-      }))
+        user: res.data.user,
+      })
     }
-
     checkLoggedIn()
   }, [setAuthStatus])
+
+  /**
+ intercept any error responses from the api
+ and check if the token is no longer valid.
+ ie. Token has expired or user is no longer
+ authenticated.
+ logout the user if the token has expired
+**/
+
+  // api.interceptors.response.use(
+  //   res => res,
+  //   err => {
+  //     if (err.response.status === 401) {
+  //       setAuthStatus({
+  //         ...authStatus,
+  //         isAuthenticated: false,
+  //         isLoading: false,
+  //         user: null,
+  //       })
+  //     }
+  //     return Promise.reject(err)
+  //   }
+  // )
 
   console.log(authStatus)
   return (
@@ -49,7 +82,6 @@ const App = () => {
           {/* <Default path="/" /> */}
         </Router>
       </Layout>
-      <ReactQueryDevtools initialIsOpen={false} />
     </>
   )
 }

@@ -1,13 +1,12 @@
 import React, { useState, useContext } from "react"
 import { Link, navigate } from "gatsby"
 import tw from "tailwind.macro"
-import axios from "axios"
 
 import { Form, Input, Button } from "../components/common"
 import { AuthContext } from "../context/authContext"
 
 const Signin = () => {
-  const { authStatus, setAuthStatus } = useContext(AuthContext)
+  const { authStatus, signIn } = useContext(AuthContext)
 
   const [formValues, setFormValues] = useState({
     email: "",
@@ -24,19 +23,7 @@ const Signin = () => {
   const onSubmit = async e => {
     e.preventDefault()
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/users/signin",
-        formValues
-      )
-
-      setAuthStatus(authStatus => ({
-        ...authStatus,
-        isAuthenticated: true,
-        isLoading: false,
-      }))
-
-      localStorage.setItem("x-auth-token", res.data.token)
-      navigate("/app/post")
+      await signIn(formValues)
     } catch (err) {
       console.log(err)
     }

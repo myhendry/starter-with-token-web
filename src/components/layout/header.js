@@ -7,17 +7,7 @@ import { AuthContext } from "../../context/authContext"
 import { Button } from "../common"
 
 const Header = ({ siteTitle }) => {
-  const { authStatus, setAuthStatus } = useContext(AuthContext)
-
-  const signOut = () => {
-    setAuthStatus({
-      ...authStatus,
-      isAuthenticated: false,
-      isLoading: false,
-      user: null,
-    })
-    localStorage.setItem("x-auth-token", "")
-  }
+  const { authStatus, signOut } = useContext(AuthContext)
 
   const guestLinks = (
     <>
